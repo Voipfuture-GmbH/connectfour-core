@@ -1,4 +1,4 @@
-![Image of Yaktocat](https://octodex.github.com/images/yaktocat.png)
+![Screenshot](https://raw.githubusercontent.com/voipfuture/fourwins-core/master/screenshot.png)
 
 # Running
 
