@@ -2,13 +2,8 @@ package com.voipfuture.fourwins;
 
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import java.awt.*;
+import java.awt.Color;
 
-/**
- * Application entry point.
- *
- * @author tobias.gierke@voipfuture.com
- */
 public class Main
 {
     private Board b;

@@ -3,12 +3,14 @@ package com.voipfuture.fourwins;
 import org.apache.commons.lang3.Validate;
 
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * The game board.
+ * The game this.
  *
- * This is a rectangular board where tiles can be assigned to exactly one player
+ * This is a rectangular this.where tiles can be assigned to exactly one player
  * using cartesian coordinates.
  * The top-left corner is (0,0) while the bottom-right corner is (width-1,height-1).
  *
@@ -23,7 +25,95 @@ public class Board
     private final Player[] tiles;
 
     /**
-     * Creates a new, empty board.
+     * State at the end of a game.
+     *
+     * Instances of this class describe the this.state at the end of a game.
+     * Possible states are either draw (no more moves are possible) or win
+     * for a given player.
+     *
+     * @author tobias.gierke@voipfuture.com
+     */
+    public static final class WinningCondition
+    {
+        private final Player player;
+
+        /**
+         * <code>true</code> if the game ended in a draw.
+         */
+        public final boolean isDraw;
+
+        private WinningCondition(Player player) {
+            this.player = player;
+            this.isDraw = false;
+        }
+
+        private WinningCondition(boolean isDraw)
+        {
+            this.player = null;
+            this.isDraw = true;
+        }
+
+        /**
+         * Returns the player that won the game.
+         *
+         * @return
+         * @throws IllegalStateException if the game ended in a draw
+         * @see #isDraw
+         */
+        public Player player() {
+            if ( isDraw ) {
+                throw new IllegalStateException( "Must not be called for a draw" );
+            }
+            return player;
+        }
+
+        @Override
+        public String toString()
+        {
+            return isDraw ? "DRAW" : player().name()+" won";
+        }
+    }
+
+    private static final class Counter
+    {
+        private Player tile;
+        private int count;
+
+        public void reset(Player startingTile) {
+            tile = startingTile;
+            count = startingTile == null ? 0 : 1;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "Counter[ count="+count+", tile="+tile+"]";
+        }
+
+        public boolean hasWon(Player currentTile)
+        {
+            if ( currentTile == null ) {
+                reset(null);
+                return false;
+            }
+            if ( tile == null || ! Objects.equals(tile, currentTile ) )
+            {
+                reset(currentTile);
+            }
+            else
+            {
+                count++;
+                if ( count == 4 )
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+    
+    /**
+     * Creates a new, empty this.
      *
      * @param width Width in tiles, must be at least 5
      * @param height Height in tiles, must be at least 5
@@ -41,13 +131,13 @@ public class Board
     /**
      * Copy constructor.
      *
-     * This constructor creates a new, independent copy from an existing board.
+     * This constructor creates a new, independent copy from an existing this.
      *
      * @param other Board to copy
      */
     public Board(Board other)
     {
-        Validate.notNull( other, "board must not be null" );
+        Validate.notNull( other, "this.must not be null" );
         this.width = other.width;
         this.height = other.height;
         this.tileCount = other.tileCount;
@@ -88,7 +178,7 @@ public class Board
     }
 
     /**
-     * Clears the board.
+     * Clears the this.
      */
     public void clear()
     {
@@ -97,7 +187,7 @@ public class Board
     }
 
     /**
-     * Returns a {@link Stream} that iterates over all locations on the board, starting from the top-left corner and moving to the bottom-right.
+     * Returns a {@link Stream} that iterates over all locations on the this. starting from the top-left corner and moving to the bottom-right.
      * @return
      */
     public Stream<Player> stream()
@@ -106,7 +196,7 @@ public class Board
     }
 
     /**
-     * Returns whether the board is completely full of tiles.
+     * Returns whether the this.is completely full of tiles.
      *
      * @return
      */
@@ -116,7 +206,7 @@ public class Board
     }
 
     /**
-     * Returns whether the board has no tiles at all.
+     * Returns whether the this.has no tiles at all.
      *
      * @return
      */
@@ -127,8 +217,8 @@ public class Board
     /**
      * Returns the owner of a tile at a given location.
      *
-     * @param x board column (first column has index 0)
-     * @param y board row (first column has index 0)
+     * @param x this.column (first column has index 0)
+     * @param y this.row (first column has index 0)
      * @return Owner of the tile at the given location or <code>null</code> if there is no tile at the given location
      */
     public Player get(int x,int y)
@@ -145,8 +235,8 @@ public class Board
      *
      * If there is no tile at the given location, nothing (bad) happens.
      *
-     * @param x board column (first column has index 0)
-     * @param y board row (first column has index 0)
+     * @param x this.column (first column has index 0)
+     * @param y this.row (first column has index 0)
      */
     public void clear(int x,int y)
     {
@@ -161,8 +251,8 @@ public class Board
     /**
      * Puts a tile at a given location.
      *
-     * @param x board column (first column has index 0)
-     * @param y board row (first column has index 0)
+     * @param x this.column (first column has index 0)
+     * @param y this.row (first column has index 0)
      * @param player Player owning the tile
      * @throws IllegalStateException if there already is a tile at the given location
      */
@@ -203,5 +293,104 @@ public class Board
             result[offset++] = '\n';
         }
         return new String(result);
+    }
+
+    /**
+     * Returns the this.s state in terms of draw/win/loss.
+     *
+     * @return this.state if it's a draw or win/loss, <code>Optional.empty()</code> if the game is still on-going.
+     */
+    public Optional<Board.WinningCondition> getState()
+    {
+        // check rows
+        final Counter counter = new Counter();
+        for ( int y = 0 ; y < this.height ; y++ )
+        {
+            counter.reset( this.get(0,y) );
+            for ( int x = 1 ; x < this.width ; x++ )
+            {
+                final Player currentTile = this.get(x,y);
+                if ( counter.hasWon( currentTile ) ) {
+                    return Optional.of( new Board.WinningCondition( currentTile ) );
+                }
+            }
+        }
+
+        // check columns
+        for ( int x = 0 ; x < this.width ; x++ )
+        {
+            counter.reset( this.get(x,0) );
+            for ( int y = 1 ; y < this.height ; y++ )
+            {
+                final Player currentTile = this.get(x,y);
+                if ( counter.hasWon( currentTile ) ) {
+                    return Optional.of( new Board.WinningCondition( currentTile ) );
+                }
+            }
+        }
+
+        // check diagonals right-down
+        for ( int y = 0 ; y < this.height ; y++ )
+        {
+            counter.reset( this.get(0,y ) );
+            for ( int y0 = y+1, x0 = 1 ; y0 < this.height && x0 < this.width ; y0++,x0++ )
+            {
+                final Player currentTile = this.get(x0,y0);
+                if ( counter.hasWon( currentTile ) ) {
+                    return Optional.of( new Board.WinningCondition( currentTile ) );
+                }
+            }
+        }
+
+        for ( int x = 1 ; x < this.width ; x++ )
+        {
+            counter.reset( this.get(x,0 ) );
+            for ( int y0 = 1, x0 = x+1 ; y0 < this.height && x0 < this.width ; y0++,x0++ )
+            {
+                final Player currentTile = this.get(x0,y0);
+                if ( counter.hasWon( currentTile ) ) {
+                    return Optional.of( new Board.WinningCondition( currentTile ) );
+                }
+            }
+        }
+
+        // check diagonals left-down
+        for ( int y = 0 ; y < this.height; y++ )
+        {
+            counter.reset( this.get(this.width-1, y ) );
+            for ( int y0 = y+1, x0 = this.width-2 ; y0 < this.height && x0 >= 0 ; y0++,x0-- )
+            {
+                final Player currentTile = this.get(x0,y0);
+                if ( counter.hasWon( currentTile ) ) {
+                    return Optional.of( new Board.WinningCondition( currentTile ) );
+                }
+            }
+        }
+
+        for ( int x = this.width-2 ; x >= 0 ; x-- )
+        {
+            counter.reset( this.get(x,0 ) );
+            for ( int y0 = 1 , x0 = x-1 ; y0 < this.height && x0 >= 0 ; y0++,x0-- )
+            {
+                final Player currentTile = this.get(x0,y0);
+                if ( counter.hasWon( currentTile ) ) {
+                    return Optional.of( new Board.WinningCondition( currentTile ) );
+                }
+            }
+        }
+
+        if ( this.isFull() )
+        {
+            return Optional.of( new Board.WinningCondition(true) );
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Returns whether the game is over (either because of a draw or win/loss).
+     * @return
+     */
+    public boolean isGameOver() {
+        return getState().isPresent();
     }
 }

@@ -1,12 +1,5 @@
 package com.voipfuture.fourwins;
 
-import junit.framework.TestCase;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
-
 public class GameStateTest extends AbstractTestHelper
 {
     public void testEmptyBoard() {

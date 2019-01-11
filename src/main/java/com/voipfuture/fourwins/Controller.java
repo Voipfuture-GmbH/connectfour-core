@@ -6,9 +6,6 @@ import java.util.Optional;
 
 import static com.voipfuture.fourwins.IInputProvider.InputEvent.EventType.MOVE;
 import static com.voipfuture.fourwins.IInputProvider.InputEvent.EventType.NEW_GAME;
-import static com.voipfuture.fourwins.IInputProvider.InputEvent.EventType.PLAYER_METADATA_CHANGED;
-import static com.voipfuture.fourwins.IInputProvider.InputEvent.EventType.START_EVENT;
-import static com.voipfuture.fourwins.IInputProvider.InputEvent.EventType.STOP_EVENT;
 
 /**
  * Game controller.

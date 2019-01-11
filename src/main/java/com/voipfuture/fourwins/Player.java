@@ -2,7 +2,7 @@ package com.voipfuture.fourwins;
 
 import org.apache.commons.lang3.Validate;
 
-import java.awt.*;
+import java.awt.Color;
 
 /**
  * A game player.
@@ -20,7 +20,7 @@ public class Player
     private String name;
     private boolean isComputer;
     private int maxThinkDepth = 7;
-    private String algorithm = "com.voipfuture.fourwins.algorithms.VoipfuturePlayer";
+    private String algorithm = "com.voipfuture.fourwins.algorithms.DummyPlayer";
 
     public long totalMovesAnalyzed;
     public float totalMoveTimeSeconds;

@@ -1,11 +1,8 @@
 package com.voipfuture.fourwins;
 
+import com.voipfuture.fourwins.util.InputProviderLoader;
 import org.apache.commons.lang3.Validate;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import static com.voipfuture.fourwins.IInputProvider.InputEvent.EventType.NEW_GAME;
@@ -24,48 +21,9 @@ import static com.voipfuture.fourwins.IInputProvider.InputEvent.EventType.STOP_E
  */
 public class DelegatingInputProvider implements IInputProvider
 {
-    private static UnloadingClassLoader classLoader;
-    private static final Map<Player,IInputProvider> computerPlayers = new HashMap<>();
-
-    private static final class UnloadingClassLoader extends ClassLoader
-    {
-        @Override
-        public Class<?> findClass(String name) throws ClassNotFoundException
-        {
-            byte[] bt = loadClassData(name);
-            return defineClass(name, bt, 0, bt.length);
-        }
-
-        private byte[] loadClassData(String className) throws ClassNotFoundException
-        {
-            final InputStream is = DelegatingInputProvider.class.getClassLoader().getResourceAsStream(className.replace(".", "/")+".class");
-            if ( is == null ) {
-                throw new ClassNotFoundException( "Could not find class '"+className+"' on classpath" );
-            }
-            try
-            {
-                return is.readAllBytes();
-            }
-            catch (IOException e)
-            {
-                throw new ClassNotFoundException( "Failed to load '"+className+"' from classpath",e);
-            }
-        }
-    }
-
     private final IInputProvider humanInput;
 
     private boolean autoplay;
-
-    /**
-     * Schedules all algorithm implementations for reload.
-     */
-    public static void reloadAlgorithms()
-    {
-        System.out.println("Algorithm implementations will be reloaded.");
-        computerPlayers.clear();
-        classLoader = new UnloadingClassLoader();
-    }
 
     /**
      * Create instance.
@@ -76,37 +34,7 @@ public class DelegatingInputProvider implements IInputProvider
     {
         Validate.notNull( humanInput, "humanInput must not be null" );
         this.humanInput = humanInput;
-        reloadAlgorithms();
-    }
-
-    private static IInputProvider loadInputProvider(Player player)
-    {
-        final Object instance;
-        try
-        {
-            System.out.println("Trying to load algorithm '"+player.algorithm()+"' ...");
-            final Class<?> clazz = classLoader.loadClass( player.algorithm() );
-            instance = clazz.getDeclaredConstructor( null ).newInstance( null );
-        }
-        catch (Exception e)
-        {
-            System.err.println("Failed to load algorithm '"+player.algorithm()+"' from classpath");
-            throw new RuntimeException(e);
-        }
-        return (IInputProvider) instance;
-    }
-
-    private static IInputProvider getInputProvider(Player player)
-    {
-        if ( ! player.isComputer() ) {
-            throw new IllegalArgumentException( "Only applicable to computer players" );
-        }
-        return computerPlayers.computeIfAbsent( player,p ->
-        {
-            p.totalMovesAnalyzed = 0;
-            p.totalMoveTimeSeconds = 0;
-            return loadInputProvider( p );
-        });
+        InputProviderLoader.reloadAlgorithms();
     }
 
     private Optional<InputEvent> filterHumanEvents(Optional<InputEvent> input,boolean onlyComputerPlayers)
@@ -129,7 +57,7 @@ public class DelegatingInputProvider implements IInputProvider
         }
         if ( ev.hasType( PLAYER_METADATA_CHANGED ) )
         {
-            reloadAlgorithms();
+            InputProviderLoader.reloadAlgorithms();
             return Optional.empty();
         }
         return input;
@@ -177,7 +105,7 @@ public class DelegatingInputProvider implements IInputProvider
             }
 
             System.out.print("'"+currentPlayer.name()+"' is thinking ("+currentPlayer.maxThinkDepth()+" half-moves look-ahead) ...");
-            final Optional<InputEvent> result = getInputProvider( currentPlayer ).readInput(gameState);
+            final Optional<InputEvent> result = InputProviderLoader.getInputProvider( currentPlayer ).readInput(gameState);
             System.out.println( "done. Average speed is "+(currentPlayer.totalMovesAnalyzed / currentPlayer.totalMoveTimeSeconds)+" moves/s");
             return result;
         }

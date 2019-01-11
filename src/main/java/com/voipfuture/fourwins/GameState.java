@@ -5,7 +5,6 @@ import org.apache.commons.lang3.Validate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 
@@ -31,94 +30,6 @@ public class GameState
 
     private int gameCount;
     private final Map<Player,Integer> winCounts = new HashMap<>();
-
-    /**
-     * State at the end of a game.
-     *
-     * Instances of this class describe the board state at the end of a game.
-     * Possible states are either draw (no more moves are possible) or win
-     * for a given player.
-     *
-     * @author tobias.gierke@voipfuture.com
-     */
-    public static final class WinningCondition
-    {
-        private final Player player;
-
-        /**
-         * <code>true</code> if the game ended in a draw.
-         */
-        public final boolean isDraw;
-
-        private WinningCondition(Player player) {
-            this.player = player;
-            this.isDraw = false;
-        }
-
-        private WinningCondition(boolean isDraw)
-        {
-            this.player = null;
-            this.isDraw = true;
-        }
-
-        /**
-         * Returns the player that won the game.
-         *
-         * @return
-         * @throws IllegalStateException if the game ended in a draw
-         * @see #isDraw
-         */
-        public Player player() {
-            if ( isDraw ) {
-                throw new IllegalStateException( "Must not be called for a draw" );
-            }
-            return player;
-        }
-
-        @Override
-        public String toString()
-        {
-            return isDraw ? "DRAW" : player().name()+" won";
-        }
-    }
-
-    private static final class Counter
-    {
-        private Player tile;
-        private int count;
-
-        public void reset(Player startingTile) {
-            tile = startingTile;
-            count = startingTile == null ? 0 : 1;
-        }
-
-        @Override
-        public String toString()
-        {
-            return "Counter[ count="+count+", tile="+tile+"]";
-        }
-
-        public boolean hasWon(Player currentTile)
-        {
-            if ( currentTile == null ) {
-                reset(null);
-                return false;
-            }
-            if ( tile == null || ! Objects.equals(tile, currentTile ) )
-            {
-                reset(currentTile);
-            }
-            else
-            {
-                count++;
-                if ( count == 4 )
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
 
     /**
      * Create a new instance.
@@ -226,7 +137,7 @@ public class GameState
      */
     public void moveFinished()
     {
-        final Optional<WinningCondition> condition = getState();
+        final Optional<Board.WinningCondition> condition = board.getState();
         condition.ifPresent(cond ->
         {
                 gameCount++;
@@ -237,94 +148,12 @@ public class GameState
     }
 
     /**
-     * Returns the board's state in terms of draw/win/loss.
+     * Returns the this.s state in terms of draw/win/loss.
      *
-     * @return board state if it's a draw or win/loss, <code>Optional.empty()</code> if the game is still on-going.
+     * @return this.state if it's a draw or win/loss, <code>Optional.empty()</code> if the game is still on-going.
      */
-    public Optional<WinningCondition> getState()
-    {
-        // check rows
-        final Counter counter = new Counter();
-        for ( int y = 0 ; y < board.height ; y++ )
-        {
-            counter.reset( board.get(0,y) );
-            for ( int x = 1 ; x < board.width ; x++ )
-            {
-                final Player currentTile = board.get(x,y);
-                if ( counter.hasWon( currentTile ) ) {
-                    return Optional.of( new WinningCondition( currentTile ) );
-                }
-            }
-        }
-
-        // check columns
-        for ( int x = 0 ; x < board.width ; x++ )
-        {
-            counter.reset( board.get(x,0) );
-            for ( int y = 1 ; y < board.height ; y++ )
-            {
-                final Player currentTile = board.get(x,y);
-                if ( counter.hasWon( currentTile ) ) {
-                    return Optional.of( new WinningCondition( currentTile ) );
-                }
-            }
-        }
-
-        // check diagonals right-down
-        for ( int y = 0 ; y < board.height ; y++ )
-        {
-            counter.reset( board.get(0,y ) );
-            for ( int y0 = y+1, x0 = 1 ; y0 < board.height && x0 < board.width ; y0++,x0++ )
-            {
-                final Player currentTile = board.get(x0,y0);
-                if ( counter.hasWon( currentTile ) ) {
-                    return Optional.of( new WinningCondition( currentTile ) );
-                }
-            }
-        }
-
-        for ( int x = 1 ; x < board.width ; x++ )
-        {
-            counter.reset( board.get(x,0 ) );
-            for ( int y0 = 1, x0 = x+1 ; y0 < board.height && x0 < board.width ; y0++,x0++ )
-            {
-                final Player currentTile = board.get(x0,y0);
-                if ( counter.hasWon( currentTile ) ) {
-                    return Optional.of( new WinningCondition( currentTile ) );
-                }
-            }
-        }
-
-        // check diagonals left-down
-        for ( int y = 0 ; y < board.height; y++ )
-        {
-            counter.reset( board.get(board.width-1, y ) );
-            for ( int y0 = y+1, x0 = board.width-2 ; y0 < board.height && x0 >= 0 ; y0++,x0-- )
-            {
-                final Player currentTile = board.get(x0,y0);
-                if ( counter.hasWon( currentTile ) ) {
-                    return Optional.of( new WinningCondition( currentTile ) );
-                }
-            }
-        }
-
-        for ( int x = board.width-2 ; x >= 0 ; x-- )
-        {
-            counter.reset( board.get(x,0 ) );
-            for ( int y0 = 1 , x0 = x-1 ; y0 < board.height && x0 >= 0 ; y0++,x0-- )
-            {
-                final Player currentTile = board.get(x0,y0);
-                if ( counter.hasWon( currentTile ) ) {
-                    return Optional.of( new WinningCondition( currentTile ) );
-                }
-            }
-        }
-
-        if ( board.isFull() )
-        {
-            return Optional.of( new WinningCondition(true) );
-        }
-        return Optional.empty();
+    public Optional<Board.WinningCondition> getState() {
+        return board.getState();
     }
 
     /**
@@ -332,6 +161,6 @@ public class GameState
      * @return
      */
     public boolean isGameOver() {
-        return getState().isPresent();
+        return board.isGameOver();
     }
 }

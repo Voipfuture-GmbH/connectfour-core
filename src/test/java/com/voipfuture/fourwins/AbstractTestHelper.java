@@ -2,7 +2,7 @@ package com.voipfuture.fourwins;
 
 import junit.framework.TestCase;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -31,18 +31,18 @@ public abstract class AbstractTestHelper extends TestCase
     }
 
     protected final void assertDraw() {
-        final Optional<GameState.WinningCondition> win = state.getState();
+        final Optional<Board.WinningCondition> win = state.getState();
         assertTrue( win.isPresent() );
         assertTrue( "Expected a draw but got "+win.get(), win.get().isDraw );
     }
 
     protected final void assertOngoing() {
-        final Optional<GameState.WinningCondition> win = state.getState();
+        final Optional<Board.WinningCondition> win = state.getState();
         assertEquals("Expected ongoing match but got \n"+win, false,win.isPresent() );
     }
 
     protected final void assertWon(Player player) {
-        final Optional<GameState.WinningCondition> win = state.getState();
+        final Optional<Board.WinningCondition> win = state.getState();
         assertTrue( "Expected player to have won but state is 'ongoing match'",win.isPresent() );
         assertEquals( player, win.get().player() );
     }
