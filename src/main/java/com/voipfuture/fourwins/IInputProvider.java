@@ -137,5 +137,6 @@ public interface IInputProvider
      *
      * Only applicable to input providers that keep a queue of input events.
      */
-    void clearInputQueue();
+    default void clearInputQueue() {
+    }
 }

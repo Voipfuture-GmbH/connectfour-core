@@ -4,6 +4,7 @@ import com.voipfuture.fourwins.GameState;
 import com.voipfuture.fourwins.IInputProvider;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -14,27 +15,23 @@ import java.util.Random;
  */
 public class DummyPlayer implements IInputProvider
 {
+    private final Random random = new Random();
+
     @Override
     public Optional<InputEvent> readInput(GameState gameState)
     {
         final List<Integer> possibleMoves = new ArrayList<>();
         for ( int col = 0 ; col < gameState.board.width ; col++ )
         {
-            if ( gameState.board.hasSpaceInRow( col ) ) {
+            if ( gameState.board.hasSpaceInColumn( col ) ) {
                 possibleMoves.add( col );
             }
         }
         if ( ! possibleMoves.isEmpty() )
         {
-            final int randomIdx = new Random( System.currentTimeMillis() ).nextInt( possibleMoves.size() );
-            return Optional.of( new MoveEvent( gameState.currentPlayer(), possibleMoves.get( randomIdx ) ) );
+            Collections.shuffle(possibleMoves,random);
+            return Optional.of( new MoveEvent( gameState.currentPlayer(), possibleMoves.get( 0 ) ) );
         }
         return Optional.empty();
-    }
-
-    @Override
-    public void clearInputQueue()
-    {
-        // nop
     }
 }

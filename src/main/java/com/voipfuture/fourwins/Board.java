@@ -151,7 +151,7 @@ public class Board
      * @param x column x position (first column has index 0)
      * @return true if at least one more tile can be inserted into the given column
      */
-    public boolean hasSpaceInRow(int x)
+    public boolean hasSpaceInColumn(int x)
     {
         return get(x,0) == null;
     }
