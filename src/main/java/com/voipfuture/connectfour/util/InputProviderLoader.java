@@ -1,7 +1,7 @@
-package com.voipfuture.fourwins.util;
+package com.voipfuture.connectfour.util;
 
-import com.voipfuture.fourwins.IInputProvider;
-import com.voipfuture.fourwins.Player;
+import com.voipfuture.connectfour.IInputProvider;
+import com.voipfuture.connectfour.Player;
 
 import java.io.File;
 import java.io.IOException;

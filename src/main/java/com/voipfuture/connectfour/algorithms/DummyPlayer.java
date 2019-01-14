@@ -1,7 +1,7 @@
-package com.voipfuture.fourwins.algorithms;
+package com.voipfuture.connectfour.algorithms;
 
-import com.voipfuture.fourwins.GameState;
-import com.voipfuture.fourwins.IInputProvider;
+import com.voipfuture.connectfour.GameState;
+import com.voipfuture.connectfour.IInputProvider;
 
 import java.util.ArrayList;
 import java.util.Collections;

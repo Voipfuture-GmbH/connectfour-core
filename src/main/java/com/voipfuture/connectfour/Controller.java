@@ -1,11 +1,11 @@
-package com.voipfuture.fourwins;
+package com.voipfuture.connectfour;
 
 import org.apache.commons.lang3.Validate;
 
 import java.util.Optional;
 
-import static com.voipfuture.fourwins.IInputProvider.InputEvent.EventType.MOVE;
-import static com.voipfuture.fourwins.IInputProvider.InputEvent.EventType.NEW_GAME;
+import static com.voipfuture.connectfour.IInputProvider.InputEvent.EventType.MOVE;
+import static com.voipfuture.connectfour.IInputProvider.InputEvent.EventType.NEW_GAME;
 
 /**
  * Game controller.

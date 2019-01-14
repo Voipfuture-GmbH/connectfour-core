@@ -1,4 +1,4 @@
-package com.voipfuture.fourwins;
+package com.voipfuture.connectfour;
 
 public class GameStateTest extends AbstractTestHelper
 {

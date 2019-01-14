@@ -1,20 +1,20 @@
-package com.voipfuture.fourwins;
+package com.voipfuture.connectfour;
 
-import com.voipfuture.fourwins.util.InputProviderLoader;
+import com.voipfuture.connectfour.util.InputProviderLoader;
 import org.apache.commons.lang3.Validate;
 
 import java.util.Optional;
 
-import static com.voipfuture.fourwins.IInputProvider.InputEvent.EventType.NEW_GAME;
-import static com.voipfuture.fourwins.IInputProvider.InputEvent.EventType.PLAYER_METADATA_CHANGED;
-import static com.voipfuture.fourwins.IInputProvider.InputEvent.EventType.START_EVENT;
-import static com.voipfuture.fourwins.IInputProvider.InputEvent.EventType.STOP_EVENT;
+import static com.voipfuture.connectfour.IInputProvider.InputEvent.EventType.NEW_GAME;
+import static com.voipfuture.connectfour.IInputProvider.InputEvent.EventType.PLAYER_METADATA_CHANGED;
+import static com.voipfuture.connectfour.IInputProvider.InputEvent.EventType.START_EVENT;
+import static com.voipfuture.connectfour.IInputProvider.InputEvent.EventType.STOP_EVENT;
 
 /**
  * A {@link IInputProvider} that wraps input providers for computer players and human players and
  * automatically dispatches requests to the right one depending on the type of player that has to move.
  *
- * <b>Note that computer players do not need to returna {@link com.voipfuture.fourwins.IInputProvider.NewGameEvent}
+ * <b>Note that computer players do not need to returna {@link com.voipfuture.connectfour.IInputProvider.NewGameEvent}
  * when the {@link GameState#getState() game state} is draw or win/loss, this is automatically handled by this class.</b>
  *
  * @author tobias.gierke@voipfuture.com

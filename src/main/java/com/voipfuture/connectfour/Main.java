@@ -1,4 +1,4 @@
-package com.voipfuture.fourwins;
+package com.voipfuture.connectfour;
 
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;

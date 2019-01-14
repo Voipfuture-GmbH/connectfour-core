@@ -1,4 +1,4 @@
-package com.voipfuture.fourwins;
+package com.voipfuture.connectfour;
 
 import org.apache.commons.lang3.Validate;
 
@@ -20,7 +20,7 @@ public class Player
     private String name;
     private boolean isComputer;
     private int maxThinkDepth = 7;
-    private String algorithm = "com.voipfuture.fourwins.algorithms.DummyPlayer";
+    private String algorithm = "com.voipfuture.connectfour.algorithms.DummyPlayer";
 
     public long totalMovesAnalyzed;
     public float totalMoveTimeSeconds;
