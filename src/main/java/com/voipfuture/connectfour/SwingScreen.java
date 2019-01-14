@@ -304,7 +304,7 @@ public class SwingScreen extends JFrame implements IScreen, IInputProvider
 
     public SwingScreen(GameState gameState)
     {
-        super("Four Wins!");
+        super("Connect Four!");
         Validate.notNull( gameState, "gameState must not be null" );
         this.gameState = gameState;
 
