@@ -21,6 +21,8 @@ import java.util.jar.JarFile;
  */
 public class InputProviderLoader
 {
+    public static boolean DEBUG = false;
+
     private static InnerClassloader CLASSLOADER = new InnerClassloader();
 
     // Class names of IInputProvider implementations that are
@@ -110,7 +112,10 @@ public class InputProviderLoader
                     if ( part.toLowerCase().endsWith( ".jar" ) )
                     {
                         // JAR file
-                        System.out.println( "Scanning JAR " + part + " ..." );
+                        if ( DEBUG )
+                        {
+                            System.out.println( "Scanning JAR " + part + " ..." );
+                        }
                         try (final JarFile f = new JarFile( new File( part ) ))
                         {
                             for (final Enumeration<JarEntry> entries = f.entries();
@@ -122,7 +127,10 @@ public class InputProviderLoader
                                     try (InputStream in = f.getInputStream( entry ))
                                     {
                                         byte[] result = in.readAllBytes();
-                                        System.out.println( ">>> Found class " + pathToClass + " in " + part );
+                                        if ( DEBUG )
+                                        {
+                                            System.out.println( ">>> Found class " + pathToClass + " in " + part );
+                                        }
                                         return result;
                                     }
                                 }
@@ -133,11 +141,17 @@ public class InputProviderLoader
                     {
                         // directory
                         final File f = new File( part, pathToClass );
-                        System.out.println( "Scanning directory " + part + " , looking for " + f.getAbsolutePath() );
+                        if ( DEBUG )
+                        {
+                            System.out.println( "Scanning directory " + part + " , looking for " + f.getAbsolutePath() );
+                        }
                         if ( f.exists() )
                         {
                             final byte[] result = Files.readAllBytes( f.toPath() );
-                            System.out.println( ">>> Found class " + pathToClass + " in " + part );
+                            if ( DEBUG )
+                            {
+                                System.out.println( ">>> Found class " + pathToClass + " in " + part );
+                            }
                             return result;
                         }
                     }
@@ -154,7 +168,10 @@ public class InputProviderLoader
             final Object instance;
             try
             {
-                System.out.println( "Trying to load algorithm '" + player.algorithm() + "' ..." );
+                if ( DEBUG )
+                {
+                    System.out.println( "Trying to load algorithm '" + player.algorithm() + "' ..." );
+                }
                 playerClassNames.put( player.algorithm() , "" );
                 final Class<?> clazz = CLASSLOADER.loadClass( player.algorithm() );
                 instance = clazz.getDeclaredConstructor( null ).newInstance( null );
@@ -182,7 +199,10 @@ public class InputProviderLoader
      */
     public static void reloadAlgorithms()
     {
-        System.out.println( "Algorithm implementations will be reloaded." );
+        if ( DEBUG )
+        {
+            System.out.println( "Algorithm implementations will be reloaded." );
+        }
         CLASSLOADER = new InnerClassloader();
     }
 }

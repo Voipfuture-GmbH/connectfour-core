@@ -104,9 +104,11 @@ public class DelegatingInputProvider implements IInputProvider
                 return Optional.empty();
             }
 
-            System.out.print("'"+currentPlayer.name()+"' is thinking ("+currentPlayer.maxThinkDepth()+" half-moves look-ahead) ...");
+            System.out.println("'"+currentPlayer.name()+"' is thinking ("+currentPlayer.maxThinkDepth()+" half-moves look-ahead) ...");
+            long time1 = System.currentTimeMillis();
             final Optional<InputEvent> result = InputProviderLoader.getInputProvider( currentPlayer ).readInput(gameState);
-            System.out.println( "done. Average speed is "+(currentPlayer.totalMovesAnalyzed / currentPlayer.totalMoveTimeSeconds)+" moves/s");
+            long elapsed = System.currentTimeMillis() - time1;
+            System.out.println( "Done. Player "+gameState.currentPlayer().name()+" took "+elapsed+" ms to think, average speed is "+(currentPlayer.totalMovesAnalyzed / currentPlayer.totalMoveTimeSeconds)+" moves/s");
             return result;
         }
         return filterHumanEvents( humanInput.readInput(gameState), onlyComputerPlayers );

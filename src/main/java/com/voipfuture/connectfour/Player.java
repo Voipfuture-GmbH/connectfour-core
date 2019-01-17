@@ -100,12 +100,14 @@ public class Player
      * if this is a computer player.
      *
      * @param className
+     * @return this instance (for chaining)
      * @see #isComputer()
      */
-    public void setAlgorithm(String className)
+    public Player setAlgorithm(String className)
     {
         Validate.notBlank( className, "algorithm must not be null or blank");
         this.algorithm = className;
+        return this;
     }
 
     /**
